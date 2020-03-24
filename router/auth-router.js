@@ -31,13 +31,14 @@ router.post('/login', (req, res) => {
 					.status(200)
 					.json({ message: `welcome ${user.username}!`, token: token });
 			} else {
-				res.status(403).json({ message: 'I dont know you' });
+				res.status(403).json({ message: 'You shall not pass!' });
 			}
 		});
 });
 
 function generateToken(user) {
 	const payload = {
+		subject: user.id,
 		username: user.username,
 		department: user.department
 	};
