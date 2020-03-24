@@ -11,7 +11,7 @@ server.use(express.json());
 server.use(morgan('dev'));
 
 server.use('/api/auth', authRouter);
-server.use('/api', userRouter);
+server.use('/api', restricted, userRouter);
 
 server.get('/', (req, res) => {
 	res.status(200).send('all goood');

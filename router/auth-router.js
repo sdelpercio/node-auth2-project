@@ -2,6 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('./users-model');
+const { jwtSecret } = require('../config/secrets');
 
 const router = express.Router();
 
@@ -18,5 +19,34 @@ router.post('/register', (req, res) => {
 			res.status(500).json({ error: 'issue creating user', err });
 		});
 });
+router.post('/login', (req, res) => {
+	const { username, password } = req.body;
+
+	db.findBy({ username })
+		.first()
+		.then(user => {
+			if (user && bcrypt.compareSync(password, user.password)) {
+				const token = generateToken(user);
+				res
+					.status(200)
+					.json({ message: `welcome ${user.username}!`, token: token });
+			} else {
+				res.status(403).json({ message: 'I dont know you' });
+			}
+		});
+});
+
+function generateToken(user) {
+	const payload = {
+		username: user.username,
+		department: user.department
+	};
+
+	const options = {
+		expiresIn: '2h'
+	};
+
+	return jwt.sign(payload, jwtSecret, options);
+}
 
 module.exports = router;
